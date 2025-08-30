@@ -36,6 +36,8 @@ https://terragrunt.gruntwork.io/docs/features/units/#terragrunt-caching
 
 ## Usage - staging 環境の例
 
+※ハンズオンのため、TG_BUCKET_SUFFIX のような suffix を付与していますが、実際の運用では冪等性担保のためハードコードしてください。
+
 1. plan 実行
 
 ```sh
