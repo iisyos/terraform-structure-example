@@ -5,11 +5,11 @@ terraform {
 }
 
 module "s3" {
-  source = "../../modules/s3"
+  source = "../../../../modules/s3"
 }
 
 module "cloud-front" {
-  source = "../../modules/cloud-front"
+  source = "../../../../modules/cloud-front"
 
   s3_bucket_id = module.s3.s3_bucket_id
   environment  = "production"
