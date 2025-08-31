@@ -1,9 +1,11 @@
-## Description
+# Terragrunt を使用した環境・モジュール分離パターン
 
-このディレクトリは Terragrunt を使って環境ごと・モジュールごとに Terraform state を分離して管理する例です。
+## 概要
+
+このディレクトリは、Terragrunt を使用して環境ごと・モジュールごとに Terraform state を分離して管理する例です。
 目的は、state の肥大化を防ぎつつ、環境追加やモジュール単位のデプロイを容易にすることです。
 
-ディレクトリ構成（例）:
+### ディレクトリ構成例
 
 ```
 ├── production
@@ -22,53 +24,67 @@
 
 <img src="./description_1.png">
 
-主なメリット
+### 主なメリット
 
-- 環境・モジュールごとに state を分離できるため、state の肥大化によるパフォーマンス低下を抑えられます。
-- `dependency` 機能を使えば、モジュール間の依存関係を明確に定義できます。
+- 環境・モジュールごとに state を分離できるため、state の肥大化によるパフォーマンス低下を抑えられます
+- `dependency` 機能を使うことで、モジュール間の依存関係を明確に定義できます
 
-また、恩恵を受けるのは初期開発のみですが、backend となる S3 バケットの構築も自動で行うことも可能です。
-※ Usage にて S3 バケットの作成手順がないのはそのためです
+### その他の特徴
 
-開発時は `--source` オプションでモジュールの一時切り替えも可能です。つまり、GitHub からではなくローカルパスを指定してモジュールを利用できます。
+- Backend となる S3 バケットの構築も自動で行うことが可能です（初期開発時のメリット）
 
-https://terragrunt.gruntwork.io/docs/features/units/#terragrunt-caching
+  - ※ 使用方法に S3 バケットの作成手順がないのはそのためです
 
-## Usage - staging 環境の例
+- `generate` 機能を使うことで、`provider`や `backend` の設定を共通化できます
 
-※ハンズオンのため、TG_BUCKET_SUFFIX のような suffix を付与していますが、実際の運用では冪等性担保のためハードコードしてください。
+- 開発時は `--source` オプションでモジュールの一時切り替えも可能です
+  - GitHub からではなくローカルパスを指定してモジュールを利用できます
 
-1. plan 実行
+> 参考: https://terragrunt.gruntwork.io/docs/features/units/#terragrunt-caching
+
+## 使用方法
+
+### Staging 環境での実行例
+
+> **注意**: ハンズオンのため `TG_BUCKET_SUFFIX` のような suffix を付与していますが、実際の運用では冪等性を担保するためハードコードすることを推奨します。
+
+#### 1. Plan の実行
 
 ```sh
 cd environments/staging
 TG_BUCKET_SUFFIX=20250831 terragrunt plan --all
 ```
 
-2. apply 実行
+#### 2. Apply の実行
 
 ```sh
 TG_BUCKET_SUFFIX=20250831 terragrunt apply --all
 ```
 
-モジュール単体を更新する場合:
+#### 3. モジュール単体の更新
+
+特定のモジュールのみを更新する場合：
 
 ```sh
 cd environments/staging/s3
 TG_BUCKET_SUFFIX=20250831 terragrunt apply
 ```
 
----
+## 新規環境の追加方法
 
-## How to add a new environment
+### 手順
 
-1. 既存環境をコピーして新しい環境ディレクトリを作成します。
+#### 1. 既存環境のコピー
+
+既存環境をベースに新しい環境ディレクトリを作成します：
 
 ```sh
 cp -r environments/staging environments/your-new-environment
 ```
 
-2. `env.hcl` を編集して環境名などを設定します。
+#### 2. 環境設定の編集
+
+`env.hcl` を編集して環境名などを設定します：
 
 ```hcl
 locals {
@@ -76,7 +92,9 @@ locals {
 }
 ```
 
-3. 新環境の apply を実行します。
+#### 3. 新環境での実行
+
+新環境で apply を実行します：
 
 ```sh
 cd environments/your-new-environment

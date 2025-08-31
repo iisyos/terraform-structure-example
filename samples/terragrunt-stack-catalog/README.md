@@ -1,12 +1,15 @@
-## Description
+# Terragrunt Stack Catalog ハンズオン資料
 
-このディレクトリは Terragrunt の `stack` 機能を使って、環境・モジュールごとに Terraform state を分離しつつ、DRY に管理するためのサンプルです。
+## 概要
 
-用語
+このディレクトリは、Terragrunt の `stack` 機能を使用して、環境・モジュールごとに Terraform state を分離しつつ、DRY（Don't Repeat Yourself）原則に基づいて管理するためのサンプルです。
 
-- Unit: 単一のデプロイ単位で、直接 Terraform モジュールを参照します。
-- Stack: 複数の Unit（や他の Stack）を組み合わせ、インフラのサブセット（例: CloudFront + S3）を定義します。
-  ディレクトリ構成:例
+### 用語定義
+
+- **Unit**: 単一のデプロイ単位。直接 Terraform モジュールを参照し、最小のインフラコンポーネントを表します
+- **Stack**: 複数の Unit（または他の Stack）を組み合わせて構成されるインフラのサブセット（例: CloudFront + S3）
+
+### ディレクトリ構成例
 
 ```
 .
@@ -28,31 +31,35 @@
 
 <img src="./description_1.png">
 
-主なメリット
+### 主なメリット
 
-- 事前に Stack を定義しておけば、環境ごとに同じ構成を簡単に適用できます。
-- モジュールの組み合わせを Stack 化することで、よく使うパターン（例: CloudFront + S3）を再利用できます。
+- 事前に Stack を定義しておくことで、環境ごとに同じ構成を簡単に適用できます
+- モジュールの組み合わせを Stack 化することで、よく使うパターン（例: CloudFront + S3）を再利用可能になります
 
 ---
 
-## 使い方（staging の例）
+## 使用方法
 
-※ハンズオンのため、TG_BUCKET_SUFFIX のような suffix を付与していますが、実際の運用では冪等性担保のためハードコードしてください。
+### Staging 環境での実行例
 
-1. plan 実行
+> **注意**: ハンズオンのため `TG_BUCKET_SUFFIX` のような suffix を付与していますが、実際の運用では冪等性を担保するためハードコードすることを推奨します。
+
+#### 1. Plan の実行
 
 ```sh
 cd environments/staging
 TG_BUCKET_SUFFIX=20250831 terragrunt stack run plan
 ```
 
-2. apply 実行
+#### 2. Apply の実行
 
 ```sh
 TG_BUCKET_SUFFIX=20250831 terragrunt stack run apply
 ```
 
-モジュール単体を更新する場合（生成されたスタックを操作）:
+#### 3. モジュール単体の更新
+
+生成されたスタックを直接操作する場合：
 
 ```sh
 TG_BUCKET_SUFFIX=20250831 terragrunt generate
@@ -62,17 +69,25 @@ terragrunt apply
 
 ---
 
-## How to add a new environment
+## 新規環境の追加方法
 
-1. 既存の環境をコピーして新しいディレクトリを作成します。
+### 手順
+
+#### 1. 既存環境のコピー
+
+既存の環境をベースに新しいディレクトリを作成します：
 
 ```sh
 cp -r environments/staging environments/your-new-environment
 ```
 
-2. `environments/your-new-environment/terragrunt.stack.hcl` を編集し、`path` や `values` を環境に合わせて修正します。
+#### 2. 設定ファイルの編集
 
-3. 新環境で plan/apply を実行します。
+`environments/your-new-environment/terragrunt.stack.hcl` を編集し、`path` や `values` を新しい環境に合わせて修正します。
+
+#### 3. 新環境での実行
+
+新環境で plan/apply を実行します：
 
 ```sh
 cd environments/your-new-environment

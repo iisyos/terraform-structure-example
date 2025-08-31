@@ -1,28 +1,35 @@
-## Description
+# 単一 State で全環境を管理するパターン
 
-この例では単一の Terraform state で production 環境と staging 環境を管理しています。  
-[main.tf](./main.tf)
+## 概要
+
+この例では、単一の Terraform state で production 環境と staging 環境を管理しています。  
+詳細は [main.tf](./main.tf) を参照してください。
 
 <img src="./images/description_1.png">
 
-全ての環境のリソースが単一の state で管理されていることは、一見便利に思えますが、以下のようなデメリットがあります。
+### 問題点
 
-- 環境ごとにリソースを分離できないため、誤って本番環境のリソースを変更・削除してしまうリスクがある
-- state ファイルが大きくなり、プロビジョニングや変更の適用に時間がかかる
-- チームでの作業時にコンフリクトが発生しやすくなる
+全ての環境のリソースが単一の state で管理されていることは、一見便利に思えますが、以下のようなデメリットがあります：
 
-そのためモジュールと環境ごとに ファイルを分離することが推奨されます。
+- 環境ごとにリソースを分離できないため、誤って本番環境のリソースを変更・削除してしまうリスクがあります
+- state ファイルが大きくなり、プロビジョニングや変更の適用に時間がかかります
+- チームでの作業時にコンフリクトが発生しやすくなります
+
+### 推奨アプローチ
+
+そのため、モジュールと環境ごとにファイルを分離することが推奨されます。
 
 <img src="./images/description_2.png">
 
-引用元: https://charity.wtf/2016/03/30/terraform-vpc-and-why-you-want-a-tfstate-file-per-env/
+> 引用元: https://charity.wtf/2016/03/30/terraform-vpc-and-why-you-want-a-tfstate-file-per-env/
 
-## Usage
+## 使用方法
 
-1. バックエンドバケットの作成
+### 1. バックエンドバケットの作成
 
 ```sh
-BUCKET_NAME="your-unique-bucket-name" # 好きな名前に変更してください
+# バケット名を設定（一意の名前に変更してください）
+BUCKET_NAME="your-unique-bucket-name"
 
 aws s3 mb s3://$BUCKET_NAME
 cat > backend.tfvars << EOF
@@ -30,21 +37,19 @@ bucket = "$BUCKET_NAME"
 EOF
 ```
 
-2. Terraform の初期化
+### 2. Terraform の初期化
 
 ```sh
 terraform init -backend-config=backend.tfvars
 ```
 
-3. Plan の実行
+### 3. Plan の実行
 
 ```sh
 terraform plan
 ```
 
-plan の結果例
-
-4. Apply の実行
+### 4. Apply の実行
 
 ```sh
 terraform apply
